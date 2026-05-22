@@ -14,15 +14,30 @@ def load_marketing():
     df['Date'] = pd.to_datetime(df['Date'])
     return df
 
-with st.form("search_form"):
-    keyword   = st.text_input("키워드 검색")
-    submitted = st.form_submit_button("검색")
+df = load_marketing().copy()
 
-if submitted and keyword:
-    mask    = df.apply(lambda row: keyword.lower() in str(row).lower(), axis=1)
-    filtered = df[mask]
-    st.write(f"'{keyword}' 검색 결과: {len(filtered):,}행")
-    st.dataframe(filtered.head(20))
+
+st.subheader("🔍 키워드 검색")
+st.caption("회사명, 지역, 캠페인 유형, 채널명 등을 입력하면 관련 데이터를 바로 검색합니다.")
+
+keyword = st.text_input("키워드 검색", placeholder="예: Chicago, Email, TechCorp")
+
+if keyword:
+    mask = df.apply(
+        lambda row: keyword.lower() in str(row).lower(),
+        axis=1
+    )
+
+    search_result = df[mask]
+
+    st.success(f"'{keyword}' 검색 결과: {len(search_result):,}행")
+
+    st.dataframe(
+        search_result.head(50),
+        use_container_width=True
+    )
+else:
+    st.info("검색어를 입력하면 결과가 표시됩니다.")
 
 st.divider()
 uploaded = st.file_uploader("내 데이터 업로드 (CSV)", type=["csv"])
